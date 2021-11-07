@@ -11,4 +11,11 @@ class MainClassTest: MainClass() {
 
         Assert.assertTrue("The number isn't 14", actual==expected)
     }
+
+    @Test
+    fun testGetClassNumber() {
+        val actual = getClassNumber()
+
+        Assert.assertTrue("The number is less than 45", actual>45)
+    }
 }
