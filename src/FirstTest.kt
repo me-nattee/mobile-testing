@@ -4,6 +4,7 @@ import io.appium.java_client.android.AndroidDriver
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.DesiredCapabilities
 import java.net.URL
 
@@ -17,7 +18,7 @@ open class FirstTest {
         capabilities.setCapability("platformName", "Android")
         capabilities.setCapability("deviceName", "AndroidTestDevice")
         capabilities.setCapability("automationName", "Appium")
-        capabilities.setCapability("platformName", "8.0")
+        capabilities.setCapability("platformVersion", "8.0")
         capabilities.setCapability("appPackage", "org.wikipedia")
         capabilities.setCapability("appActivity", ".main.MainActivity")
         capabilities.setCapability("app", "/Users/nshakh/Desktop/Apps/org.wikipedia.apk")
@@ -32,6 +33,10 @@ open class FirstTest {
 
     @Test
     fun firstTest() {
-        println("First test run")
+        var search: WebElement = driver!!.findElementByXPath("//*[contains(@text, 'Search Wikipedia')]")
+        search.click()
+
+        var enter: WebElement = driver!!.findElementById("search_src_text")
+        enter.sendKeys("Madonna")
     }
 }
