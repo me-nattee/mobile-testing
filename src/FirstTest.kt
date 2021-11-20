@@ -2,6 +2,7 @@ import io.appium.java_client.AppiumDriver
 import io.appium.java_client.MobileElement
 import io.appium.java_client.android.AndroidDriver
 import org.junit.After
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.openqa.selenium.By
@@ -45,8 +46,23 @@ open class FirstTest {
     @Test
     fun cancelSearchTest() {
         click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
+        clear(By.id("search_src_text"), "Can't find element for clearing", 5)
         click(By.id("search_close_btn"), "Can't find close button", 5)
         hasNotCloseButton(By.id("search_close_btn"), "There's search button", 5)
+    }
+
+    @Test
+    fun compareTitleTest() {
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "Can't find the element", 5)
+        val title = waitElement(By.id("view_page_title_text"), "No title", 10)
+                .getAttribute("text")
+
+        Assert.assertEquals("We see unexpected title", "Java (programming language)", title)
+
     }
 
     fun waitElement(by: By, error: String, time: Long): WebElement {
@@ -77,5 +93,11 @@ open class FirstTest {
         return wait.until(
                 ExpectedConditions.invisibilityOfElementLocated(by)
         )
+    }
+
+    fun clear(by: By, error: String, time: Long): WebElement {
+        val element: WebElement = waitElement(by, error, time)
+        element.clear()
+        return element
     }
 }
