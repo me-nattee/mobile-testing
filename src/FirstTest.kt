@@ -49,7 +49,7 @@ open class FirstTest {
         sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
         clear(By.id("search_src_text"), "Can't find element for clearing", 5)
         click(By.id("search_close_btn"), "Can't find close button", 5)
-        hasNotCloseButton(By.id("search_close_btn"), "There's search button", 5)
+        hasNotElement(By.id("search_close_btn"), "There's search button", 5)
     }
 
     @Test
@@ -72,8 +72,9 @@ open class FirstTest {
     fun searchAndClearResults() {
         click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
         sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
-        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
-                "Can't find the element", 5)
+        hasResults(By.id("page_list_item_container"), "Can't find any results of search")
+        clear(By.id("search_src_text"), "Can't find element for clearing", 5)
+        hasNotElement(By.id("page_list_item_container"), "There are results", 5)
     }
 
     fun waitElement(by: By, error: String, time: Long): WebElement {
@@ -98,7 +99,7 @@ open class FirstTest {
     }
 
 
-    fun hasNotCloseButton(by: By, error: String, time: Long): Boolean {
+    fun hasNotElement(by: By, error: String, time: Long): Boolean {
         var wait = WebDriverWait(driver, time)
         wait.withMessage(error + "\n")
         return wait.until(
@@ -125,4 +126,9 @@ open class FirstTest {
 
         Assert.assertEquals("We see unexpected title", title, result)
     }
+
+    fun hasResults(by: By, error: String) {
+        waitElement(by, error, 5).isDisplayed
+    }
+
 }
