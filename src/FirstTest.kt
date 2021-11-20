@@ -65,6 +65,14 @@ open class FirstTest {
 
     }
 
+    @Test
+    fun searchHasPlaceholder() {
+        hasText(By.xpath("//*[@resource-id='org.wikipedia:id/search_container']//*[@text='Search Wikipedia']"),
+                "Search Wikipedia", "No expected placeholder")
+    }
+
+
+
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
         wait.withMessage(error + "\n")
@@ -99,5 +107,12 @@ open class FirstTest {
         val element: WebElement = waitElement(by, error, time)
         element.clear()
         return element
+    }
+
+    fun hasText(by: By, text: String, error: String) {
+        val element: WebElement = waitElement(by, error, 10)
+        val actualText = element.getAttribute("text")
+
+        Assert.assertEquals("We see unexpected text", text, actualText)
     }
 }
