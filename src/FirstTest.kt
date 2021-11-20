@@ -1,6 +1,9 @@
+
 import io.appium.java_client.AppiumDriver
 import io.appium.java_client.MobileElement
 import io.appium.java_client.android.AndroidDriver
+import org.hamcrest.CoreMatchers.containsString
+import org.hamcrest.CoreMatchers.everyItem
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
@@ -77,6 +80,14 @@ open class FirstTest {
         hasNotElement(By.id("page_list_item_container"), "There are results", 5)
     }
 
+    @Test
+    fun searchIsRelevant() {
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
+        resultsHasTitle(By.id("page_list_item_title"), "Java", "No")
+
+    }
+
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
         wait.withMessage(error + "\n")
@@ -129,6 +140,11 @@ open class FirstTest {
 
     fun hasResults(by: By, error: String) {
         waitElement(by, error, 5).isDisplayed
+    }
+
+    fun resultsHasTitle(by: By, title: String, error: String) {
+        val results = waitElement(by, error, 5)
+        Assert.assertEquals(results, everyItem(containsString(title)))
     }
 
 }
