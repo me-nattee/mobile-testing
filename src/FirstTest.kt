@@ -58,10 +58,7 @@ open class FirstTest {
         sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
         click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
                 "Can't find the element", 5)
-        val title = waitElement(By.id("view_page_title_text"), "No title", 10)
-                .getAttribute("text")
-
-        Assert.assertEquals("We see unexpected title", "Java (programming language)", title)
+        hasTitleOfResult(By.id("view_page_title_text"), "Java (programming language)", "No expected title")
 
     }
 
@@ -71,7 +68,13 @@ open class FirstTest {
                 "Search Wikipedia", "No expected placeholder")
     }
 
-
+    @Test
+    fun searchAndClearResults() {
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "Can't find the element", 5)
+    }
 
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
@@ -114,5 +117,12 @@ open class FirstTest {
         val actualText = element.getAttribute("text")
 
         Assert.assertEquals("We see unexpected text", text, actualText)
+    }
+
+    fun hasTitleOfResult(by: By, title: String, error: String) {
+        val result = waitElement(by, error, 10)
+                .getAttribute("text")
+
+        Assert.assertEquals("We see unexpected title", title, result)
     }
 }
