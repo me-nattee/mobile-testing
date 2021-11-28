@@ -1,13 +1,13 @@
-
 import io.appium.java_client.AppiumDriver
 import io.appium.java_client.MobileElement
+import io.appium.java_client.TouchAction
 import io.appium.java_client.android.AndroidDriver
-import org.hamcrest.CoreMatchers.containsString
 import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.openqa.selenium.By
+import org.openqa.selenium.Dimension
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.support.ui.ExpectedConditions
@@ -65,6 +65,16 @@ open class FirstTest {
     }
 
     @Test
+    fun swipeTest() {
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), "Appium", "Can't find search input", 5)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
+                "Can't find the element", 5)
+        hasTitleOfResult(By.id("view_page_title_text"), "Appium", "No expected title")
+        swipeToElement(By.xpath("//*[@text='View page in browser']"), "Cannot find the end of the article", 10)
+    }
+
+    @Test
     fun searchHasPlaceholder() {
         hasText(By.xpath("//*[@resource-id='org.wikipedia:id/search_container']//*[@text='Search Wikipedia']"),
                 "Search Wikipedia", "No expected placeholder")
@@ -86,6 +96,33 @@ open class FirstTest {
         resultsHasTitle(By.id("org.wikipedia:id/page_list_item_title"), "Java")
 
     }
+
+    @Test
+    fun saveArticleTiMyList() {
+        val request = "Java"
+        val article = "Java (programming language)"
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "Can't find the element", 5)
+        hasTitleOfResult(By.id("view_page_title_text"), article, "No expected title")
+        click(By.xpath("//android.widget.ImageView[@content-desc='More options']"), "Cannot find button to open More Options", 5)
+        waitElement(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
+        click(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
+        click(By.id("org.wikipedia:id/onboarding_button"), "Cannot find 'Got it'", 5)
+        clear(By.id("org.wikipedia:id/text_input"), "Cannot clear a field", 5)
+        sendKeys(By.id("org.wikipedia:id/text_input"), article, "Cannot put text", 5)
+        click(By.xpath("//*[@text='OK']"), "Cannot find OK button", 5)
+        click(By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"), "Cannot find cross button", 5)
+        click(By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"), "Cannot find button My lists", 5)
+        click(By.xpath("//*[@text='$article']"), "Cannot find created list", 5)
+        swipeLeft(By.xpath("//*[@text='$article']"), "Cannot swipe")
+        hasNotElement(By.xpath("//*[@text='$article']"), "Element exist", 5)
+
+    }
+
+
 
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
@@ -142,10 +179,48 @@ open class FirstTest {
     }
 
     private fun resultsHasTitle(by: By, title: String) {
-       val results: List<WebElement>  = driver!!.findElements(by)
+        val results: List<WebElement> = driver!!.findElements(by)
         for (result in results) {
-            Assert.assertThat("Results don't contain a title", result.getAttribute("text"), containsString(title))
+            Assert.assertTrue("Results don't contain a title", result.getAttribute("text").contains(title))
         }
     }
+
+    private fun swipeUp(timeOfSwipe: Int) {
+        val action = TouchAction(driver)
+        val size: Dimension = driver!!.manage().window().size
+        val x: Int = size.width / 2
+        val y: Int = (size.height * 0.8).toInt()
+        val endY: Int = (size.height * 0.2).toInt()
+        action.press(x, y).waitAction(timeOfSwipe).moveTo(x, endY).release().perform()
+    }
+
+    private fun swipeLeft(by: By, error: String) {
+        val element = waitElement(by, error, 5)
+        val leftX = element.location.getX()
+        val rightX = leftX + element.size.getWidth()
+        val upperY = element.location.getY()
+        val lowerY = upperY + element.size.getHeight()
+        val middle = (upperY + lowerY) / 2
+
+        val action = TouchAction(driver)
+        action.press(rightX, middle).waitAction(300).moveTo(leftX, middle).release().perform()
+    }
+
+    private fun swipeUpQuick() {
+        swipeUp(200)
+    }
+
+    private fun swipeToElement(by: By, error: String, maxSwipes: Int) {
+        var numberOfSwipe: Int = 0
+        while (driver!!.findElements(by).size == 0) {
+            if (numberOfSwipe > maxSwipes) {
+                waitElement(by, "Cannt find element by swiping up" + error, 0)
+                return
+            }
+            swipeUpQuick()
+            numberOfSwipe++
+        }
+    }
+
 
 }
