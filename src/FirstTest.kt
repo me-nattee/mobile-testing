@@ -231,6 +231,18 @@ open class FirstTest {
         hasTitleOfResult(By.id("view_page_title_text"), "Java (programming language)", "No expected title")
     }
 
+    @Test
+    fun assertElementPresent() {
+        val request = "Java"
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 10)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "Can't find the element", 5)
+        val element: WebElement = driver!!.findElement(By.xpath("org.wikipedia:id/view_page_title_text"))
+        Assert.assertTrue("There's no attribute", element.isDisplayed)
+    }
+
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
         wait.withMessage(error + "\n")
@@ -347,6 +359,4 @@ open class FirstTest {
         val element: WebElement = waitElement(by, error, timeout)
         return element.getAttribute(attribute)
     }
-
-
 }
