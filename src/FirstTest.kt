@@ -6,6 +6,7 @@ import org.junit.After
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
+import org.junit.jupiter.api.AfterEach
 import org.openqa.selenium.By
 import org.openqa.selenium.Dimension
 import org.openqa.selenium.ScreenOrientation
@@ -38,6 +39,12 @@ open class FirstTest {
         driver?.quit() ?: throw Exception("Driver instance was unable to quit.")
     }
 
+    @AfterEach
+    fun setOrientation() {
+        driver!!.rotate(ScreenOrientation.PORTRAIT)
+    }
+
+
     @Test
     fun firstTest() {
         click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
@@ -62,7 +69,6 @@ open class FirstTest {
         click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
                 "Can't find the element", 5)
         hasTitleOfResult(By.id("view_page_title_text"), "Java (programming language)", "No expected title")
-
     }
 
     @Test
