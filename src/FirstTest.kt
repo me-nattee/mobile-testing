@@ -188,6 +188,49 @@ open class FirstTest {
                 "Can't find article after return from background", 5)
     }
 
+    @Test
+    fun saveTwoArticleTiMyList() {
+        val request = "Java"
+        val nameOfList = "Java (programming language)"
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 10)
+        resultsHasTitle(By.id("org.wikipedia:id/page_list_item_title"), request)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "Can't find the element", 5)
+        click(By.xpath("//android.widget.ImageView[@content-desc='More options']"), "Cannot find button to open More Options", 5)
+        waitElement(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
+        click(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
+        click(By.id("org.wikipedia:id/onboarding_button"), "Cannot find 'Got it'", 5)
+        clear(By.id("org.wikipedia:id/text_input"), "Cannot clear a field", 5)
+        sendKeys(By.id("org.wikipedia:id/text_input"), nameOfList, "Cannot put text", 5)
+        click(By.xpath("//*[@text='OK']"), "Cannot find OK button", 5)
+
+        click(By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"), "Cannot find cross button", 5) //закрываем сохраненную статью
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
+        resultsHasTitle(By.id("org.wikipedia:id/page_list_item_title"), request)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Programming language']"),
+                "Can't find the element", 5)
+        click(By.xpath("//android.widget.ImageView[@content-desc='More options']"), "Cannot find button to open More Options", 5)
+        waitElement(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
+        click(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
+
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/item_title']//*[@text='$nameOfList']"),
+                "Can't find list $nameOfList", 5) //клик на существующий лист
+
+        click(By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"), "Cannot find cross button", 5) //закрываем сохраненную статью
+
+
+        click(By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"), "Cannot find button My lists", 5)
+        click(By.xpath("//*[@text='$nameOfList']"), "Cannot find created list", 5)
+        swipeLeft(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']"), "Cannot swipe")
+        waitElement(By.xpath("//*[@text='Object-oriented programming language']"), "Element doesnt exist", 5)
+        click(By.xpath("//*[@text='Object-oriented programming language']"), "Cannot click on element", 5)
+        hasTitleOfResult(By.id("view_page_title_text"), "Java (programming language)", "No expected title")
+    }
+
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
         wait.withMessage(error + "\n")
