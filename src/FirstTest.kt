@@ -8,6 +8,7 @@ import org.junit.Before
 import org.junit.Test
 import org.openqa.selenium.By
 import org.openqa.selenium.Dimension
+import org.openqa.selenium.ScreenOrientation
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.remote.DesiredCapabilities
 import org.openqa.selenium.support.ui.ExpectedConditions
@@ -119,10 +120,73 @@ open class FirstTest {
         click(By.xpath("//*[@text='$article']"), "Cannot find created list", 5)
         swipeLeft(By.xpath("//*[@text='$article']"), "Cannot swipe")
         hasNotElement(By.xpath("//*[@text='$article']"), "Element exist", 5)
+    }
+
+    @Test
+    fun amountOfNotEmptySearchTest() {
+        val request = "Linkin Park discography"
+        val locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']"
+
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
+        waitElement(By.xpath(locator), "Cannot find request $request", 15)
+        val amountOfElements = getAmountOfElements(By.xpath(locator))
+
+        Assert.assertTrue("There're results", amountOfElements > 0)
+    }
+
+    @Test
+    fun amountOfEmptySearch() {
+        val request = "fejerjhererw"
+        val locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']"
+        val emptyResultsLabel = "//*[@text='No results found']"
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can find search input by $request", 5)
+        getNotElement(By.xpath(emptyResultsLabel), "Found results by request $request")
+    }
+
+    @Test
+    fun changeScreenOrientationOnSearchResults() {
+        val request = "Java"
+
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
+        click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
+                "Can't find 'Object-oriented programming language'", 15)
+
+        val titleBeforeRotation = getAttribute(By.id("org.wikipedia:id/view_page_title_text"),
+                "text", "Cannot find title of article", 15)
+        driver!!.rotate(ScreenOrientation.LANDSCAPE)
+
+        val titleAfterRotation = getAttribute(By.id("org.wikipedia:id/view_page_title_text"),
+                "text", "Cannot find title of article", 15)
+
+        Assert.assertEquals("Article title have been change", titleBeforeRotation, titleAfterRotation)
+
+        driver!!.rotate(ScreenOrientation.PORTRAIT)
+
+        val titleAfterSecondRotation = getAttribute(By.id("org.wikipedia:id/view_page_title_text"),
+                "text", "Cannot find title of article", 15)
+
+        Assert.assertEquals("Article title have been change", titleBeforeRotation, titleAfterSecondRotation)
 
     }
 
+    @Test
+    fun checkSearchArticleInBackgraund() {
+        val request = "Java"
+        val article = "Object-oriented programming language"
 
+        click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
+        sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
+        waitElement(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='$article']"),
+                "Can't find the element", 5)
+        driver!!.runAppInBackground(2)
+        waitElement(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='$article']"),
+                "Can't find article after return from background", 5)
+    }
 
     fun waitElement(by: By, error: String, time: Long): WebElement {
         var wait = WebDriverWait(driver, time)
@@ -220,6 +284,25 @@ open class FirstTest {
             swipeUpQuick()
             numberOfSwipe++
         }
+    }
+
+    @Throws(AssertionError::class)
+    private fun getNotElement(by: By, error: String) {
+        val amountOfElements = getAmountOfElements(by)
+        if (amountOfElements > 0) {
+            val defaultMessage = "An element + ${by.toString()} suppoused to be not present" // как добавить исключение? (defaultMessage + error)
+            throw AssertionError("$defaultMessage $error")
+        }
+    }
+
+    private fun getAmountOfElements(by: By): Int {
+        val elements: List<WebElement> = driver!!.findElements(by)
+        return elements.size
+    }
+
+    private fun getAttribute(by: By, attribute: String, error: String, timeout: Long): String {
+        val element: WebElement = waitElement(by, error, timeout)
+        return element.getAttribute(attribute)
     }
 
 
