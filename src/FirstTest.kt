@@ -1,7 +1,5 @@
-
 import lib.CoreTestCase
-import lib.ui.MainPageObject
-import lib.ui.SearchPageObject
+import lib.ui.*
 import org.junit.Assert
 import org.junit.Test
 import org.openqa.selenium.By
@@ -38,22 +36,27 @@ open class FirstTest : CoreTestCase() {
     @Test
     fun testCompareTitle() {
         val action = MainPageObject(driver)
-        action.click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
-        action.sendKeys(By.id("search_src_text"), "Java", "Can't find search input", 5)
-        action.click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
-                "Can't find the element", 5)
-        action.hasTitleOfResult(By.id("view_page_title_text"), "Java (programming language)", "No expected title")
+        val search = SearchPageObject(driver)
+        val article = ArticlePageObject(driver)
+
+        search.initSearchInput()
+        search.typeSearchLine("Java")
+        search.clickByArticleWithSubstring("Object-oriented programming language")
+        val articleTitle = article.getArticleTitle()
+
+        action.hasTitleOfResult(By.id("view_page_title_text"), articleTitle, "No expected title")
     }
 
     @Test
     fun testSwipe() {
-        val action = MainPageObject(driver)
-        action.click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
-        action.sendKeys(By.id("search_src_text"), "Appium", "Can't find search input", 5)
-        action.click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_title'][@text='Appium']"),
-                "Can't find the element", 5)
-        action.hasTitleOfResult(By.id("view_page_title_text"), "Appium", "No expected title")
-        action.swipeToElement(By.xpath("//*[@text='View page in browser']"), "Cannot find the end of the article", 10)
+        val search = SearchPageObject(driver)
+        val article = ArticlePageObject(driver)
+
+        search.initSearchInput()
+        search.typeSearchLine("Appium")
+        search.clickByArticleWithSubstring("Appium")
+        article.waitForTitleOfElement()
+        article.swipeToFooter()
     }
 
     @Test
@@ -84,27 +87,22 @@ open class FirstTest : CoreTestCase() {
 
     @Test
     fun testSaveArticleTiMyList() {
-        val action = MainPageObject(driver)
-        val request = "Java"
-        val article = "Java (programming language)"
+        val search = SearchPageObject(driver)
 
-        action.click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
-        action.sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
-        action.click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
-                "Can't find the element", 5)
-        action.hasTitleOfResult(By.id("view_page_title_text"), article, "No expected title")
-        action.click(By.xpath("//android.widget.ImageView[@content-desc='More options']"), "Cannot find button to open More Options", 5)
-        action.waitElement(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
-        action.click(By.xpath("//*[@text='Add to reading list']"), "Cannot find option in More Options", 5)
-        action.click(By.id("org.wikipedia:id/onboarding_button"), "Cannot find 'Got it'", 5)
-        action.clear(By.id("org.wikipedia:id/text_input"), "Cannot clear a field", 5)
-        action.sendKeys(By.id("org.wikipedia:id/text_input"), article, "Cannot put text", 5)
-        action.click(By.xpath("//*[@text='OK']"), "Cannot find OK button", 5)
-        action.click(By.xpath("//android.widget.ImageButton[@content-desc='Navigate up']"), "Cannot find cross button", 5)
-        action.click(By.xpath("//android.widget.FrameLayout[@content-desc='My lists']"), "Cannot find button My lists", 5)
-        action.click(By.xpath("//*[@text='$article']"), "Cannot find created list", 5)
-        action.swipeLeft(By.xpath("//*[@text='$article']"), "Cannot swipe")
-        action.hasNotElement(By.xpath("//*[@text='$article']"), "Element exist", 5)
+        search.initSearchInput()
+        search.typeSearchLine("Java")
+        search.clickByArticleWithSubstring("Object-oriented programming language")
+        val article = ArticlePageObject(driver)
+        article.waitForTitleOfElement()
+        val nameOfFolder = "Learning programming"
+        article.addArticleToMyList(nameOfFolder)
+        article.closeArticle()
+        val navigation = NavigationUI(driver)
+        navigation.clickMyLists()
+        val myList = MyListsPageObject(driver)
+        myList.openFolderByName(nameOfFolder)
+        val articleTitle = article.getArticleTitle()
+        myList.swipeByArticleToDelete(articleTitle)
     }
 
     @Test

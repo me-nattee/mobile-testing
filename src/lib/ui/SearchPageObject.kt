@@ -28,6 +28,11 @@ open class SearchPageObject(driver: AppiumDriver<MobileElement>?) : MainPageObje
         this.waitElement(By.xpath(searchResultXpath), "Cannot find search result $subString", 5)
     }
 
+    fun clickByArticleWithSubstring(subString: String) {
+        val searchResultXpath: String = getResultSearchElement(subString)
+        this.click(By.xpath(searchResultXpath), "Cannot find and click search result $subString", 10)
+    }
+
     fun waitForCancelButtonToAppear() {
         this.waitElement(By.id(SEARCH_CANCEL_BUTTON), "Cannot find search cancel button", 5)
     }
