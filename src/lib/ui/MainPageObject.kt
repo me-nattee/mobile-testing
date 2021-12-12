@@ -11,6 +11,7 @@ import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
 import java.time.Duration
+import java.util.regex.Pattern
 
 open class MainPageObject(open val driver: AppiumDriver<MobileElement>?) {
 
@@ -83,10 +84,10 @@ open class MainPageObject(open val driver: AppiumDriver<MobileElement>?) {
         val endY: Int = (size.height * 0.2).toInt()
         action.press(PointOption.point(x, y))
                 .waitAction(waitOptions(Duration.ofMillis(500)))
-                        .moveTo(PointOption.point(x, endY)).release().perform()
+                .moveTo(PointOption.point(x, endY)).release().perform()
     }
 
-     open fun swipeLeft(by: By, error: String) {
+    open fun swipeLeft(by: By, error: String) {
         val element = waitElement(by, error, 5)
         val leftX = element.location.getX()
         val rightX = leftX + element.size.getWidth()
@@ -132,6 +133,20 @@ open class MainPageObject(open val driver: AppiumDriver<MobileElement>?) {
     open fun getAttribute(by: By, attribute: String, error: String, timeout: Long): String {
         val element: WebElement = waitElement(by, error, timeout)
         return element.getAttribute(attribute)
+    }
+
+    fun getLocatorString(locator_with_type: String): By {
+        val exploaded_locator: List<String> = locator_with_type.split(Pattern.quote(":"), ignoreCase = false, limit = 2)
+        val by_type: String = exploaded_locator[0]
+        val locator: String = exploaded_locator[1]
+
+        if (by_type.equals("xpath")) {
+            return By.xpath(locator)
+        } else if (by_type.equals("id")) {
+            return By.id(locator)
+        } else {
+            throw IllegalAccessError("Cannot get type of locator")
+        }
     }
 
 }
