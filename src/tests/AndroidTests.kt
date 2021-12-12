@@ -1,3 +1,5 @@
+package tests
+
 import lib.CoreTestCase
 import lib.ui.*
 import org.junit.Assert
@@ -5,12 +7,14 @@ import org.junit.Test
 import org.openqa.selenium.By
 import org.openqa.selenium.ScreenOrientation
 import org.openqa.selenium.WebElement
+import java.time.Duration
 
-open class FirstTest : CoreTestCase() {
+open class AndroidTests : CoreTestCase() {
 
     override fun setUp() {
         super.setUp()
         this.driver
+        driver!!.rotate(ScreenOrientation.PORTRAIT)
     }
 
     @Test
@@ -24,10 +28,10 @@ open class FirstTest : CoreTestCase() {
 
     @Test
     fun testCancelSearch() {
-        val action = MainPageObject(driver)
         val search = SearchPageObject(driver)
 
         search.initSearchInput()
+        search.typeSearchLine("Java")
         search.waitForCancelButtonToAppear()
         search.clickCancelButton()
         search.waitForCancelButtonToDisappear()
@@ -123,8 +127,7 @@ open class FirstTest : CoreTestCase() {
     @Test
     fun testAmountOfEmptySearch() {
         val action = MainPageObject(driver)
-        val request = "fejerjhererw"
-        val locator = "//*[@resource-id='org.wikipedia:id/search_results_list']/*[@resource-id='org.wikipedia:id/page_list_item_container']"
+        val request = "fejer3jhererw"
         val emptyResultsLabel = "//*[@text='No results found']"
 
         action.click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
@@ -170,7 +173,7 @@ open class FirstTest : CoreTestCase() {
         action.sendKeys(By.id("search_src_text"), request, "Can't find search input", 5)
         action.waitElement(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='$article']"),
                 "Can't find the element", 5)
-        driver!!.runAppInBackground(2)
+        driver!!.runAppInBackground(Duration.ofSeconds(2))
         action.waitElement(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='$article']"),
                 "Can't find article after return from background", 5)
     }
@@ -180,9 +183,10 @@ open class FirstTest : CoreTestCase() {
         val action = MainPageObject(driver)
         val request = "Java"
         val nameOfList = "Java (programming language)"
+        val search = SearchPageObject(driver)
 
-        action.click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
-        action.sendKeys(By.id("search_src_text"), request, "Can't find search input", 10)
+        search.initSearchInput()
+        search.typeSearchLine("Java")
         action.resultsHasTitle(By.id("org.wikipedia:id/page_list_item_title"), request)
         action.click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
                 "Can't find the element", 5)
@@ -221,13 +225,11 @@ open class FirstTest : CoreTestCase() {
 
     @Test
     fun testAssertElementPresent() {
-        val action = MainPageObject(driver)
-        val request = "Java"
+        val search = SearchPageObject(driver)
 
-        action.click(By.xpath("//*[contains(@text, 'Search Wikipedia')]"), "Can't find Search Wikipedia input", 5)
-        action.sendKeys(By.id("search_src_text"), request, "Can't find search input", 10)
-        action.click(By.xpath("//*[@resource-id='org.wikipedia:id/page_list_item_container']//*[@text='Object-oriented programming language']"),
-                "Can't find the element", 5)
+        search.initSearchInput()
+        search.typeSearchLine("Java")
+        search.clickByArticleWithSubstring("Object-oriented programming language")
         val element: WebElement = driver!!.findElement(By.xpath("org.wikipedia:id/view_page_title_text"))
         Assert.assertTrue("There's no attribute", element.isDisplayed)
     }

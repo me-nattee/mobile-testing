@@ -10,7 +10,7 @@ open class ArticlePageObject(driver: AppiumDriver<MobileElement>?) : MainPageObj
     private val TITLE = "view_page_title_text"
     private val FOOTER = "//*[@text='View page in browser']"
     private val OPTIONS_BUTTON = "//android.widget.ImageView[@content-desc='More options']"
-    private val OPTIONS_ADD_TO_MY_LIST = "//android.widget.ImageView[@content-desc='More options']"
+    private val OPTIONS_ADD_TO_MY_LIST = "//*[@text='Add to reading list']"
     private val OVERLAY = "org.wikipedia:id/onboarding_button"
     private val MY_LIST_NAME_INPUT = "org.wikipedia:id/text_input"
     private val MY_LIST_OK_BUTTON = "//*[@text='OK']"

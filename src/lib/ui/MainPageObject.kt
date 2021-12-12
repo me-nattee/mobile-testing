@@ -2,13 +2,15 @@ package lib.ui
 
 import io.appium.java_client.AppiumDriver
 import io.appium.java_client.MobileElement
-import io.appium.java_client.TouchAction
+import io.appium.java_client.touch.WaitOptions.waitOptions
+import io.appium.java_client.touch.offset.PointOption
 import org.junit.Assert
 import org.openqa.selenium.By
 import org.openqa.selenium.Dimension
 import org.openqa.selenium.WebElement
 import org.openqa.selenium.support.ui.ExpectedConditions
 import org.openqa.selenium.support.ui.WebDriverWait
+import java.time.Duration
 
 open class MainPageObject(open val driver: AppiumDriver<MobileElement>?) {
 
@@ -74,12 +76,14 @@ open class MainPageObject(open val driver: AppiumDriver<MobileElement>?) {
     }
 
     open fun swipeUp(timeOfSwipe: Int) {
-        val action = TouchAction(driver)
+        val action = PlatformTouchAction(driver as AppiumDriver)
         val size: Dimension = driver!!.manage().window().size
         val x: Int = size.width / 2
         val y: Int = (size.height * 0.8).toInt()
         val endY: Int = (size.height * 0.2).toInt()
-        action.press(x, y).waitAction(timeOfSwipe).moveTo(x, endY).release().perform()
+        action.press(PointOption.point(x, y))
+                .waitAction(waitOptions(Duration.ofMillis(500)))
+                        .moveTo(PointOption.point(x, endY)).release().perform()
     }
 
      open fun swipeLeft(by: By, error: String) {
@@ -90,8 +94,9 @@ open class MainPageObject(open val driver: AppiumDriver<MobileElement>?) {
         val lowerY = upperY + element.size.getHeight()
         val middle = (upperY + lowerY) / 2
 
-        val action = TouchAction(driver)
-        action.press(rightX, middle).waitAction(300).moveTo(leftX, middle).release().perform()
+        val action = PlatformTouchAction(driver as AppiumDriver)
+        action.press(PointOption.point(rightX, middle)).waitAction(waitOptions(Duration.ofMillis(300)))
+                .moveTo(PointOption.point(leftX, middle)).release().perform()
     }
 
     open fun swipeUpQuick() {
